@@ -16,7 +16,7 @@ Project configuration can be changed by modifying the `application.properties` f
 
 To obtain an executable JAR file, use the following. This generates the executable JAR and places it under `build/libs`.
 
-```
+```sh
 $ ./gradlew ean build
 ```
 
@@ -32,6 +32,7 @@ Application expects the following command line arguments to provide the metric, 
 E.g.
 
 1. To find IP addresses with more than 250 entries in an hour, since 2017-01-01.15:00:00.
+
    `java -jar logmetric.jar -startDate=2017-01-01.15:00:00 --duration=hourly --threshold=250`
 
 
@@ -39,15 +40,16 @@ E.g.
 
 1. To upload log file into the database, and then perform search on that data.
 
-```
-$ java -jar logmetric.jar --accesslog=../some_access_log_file.log -startDate=2017-01-01.15:00:00 --duration=hourly --threshold=250
-
+```sh
+$ java -jar logmetric.jar --accesslog=../some_access_log_file.log \ 
+	-startDate=2017-01-01.15:00:00 --duration=hourly --threshold=250
 ```
 
 2. To search log data already uploaded to database.
 
-```
-$ java -jar logmetric.jar -startDate=2017-01-01.15:00:00 --duration=hourly --threshold=250
+```sh
+$ java -jar logmetric.jar -startDate=2017-01-01.15:00:00 \ 
+	--duration=hourly --threshold=250
 
 ```
 
