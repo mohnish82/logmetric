@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -14,6 +15,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @SpringBootApplication
 @EnableAsync
+@EnableJpaRepositories
 public class LogmetricApplication {
 
 	public static void main(String[] args) {
@@ -36,7 +38,9 @@ public class LogmetricApplication {
     public TaskExecutor taskExecutor(Environment env) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(4);
+        executor.setMaxPoolSize(8);
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(60);
         executor.setQueueCapacity(Integer.parseInt(env.getProperty("queue.capacity")));
         executor.setThreadNamePrefix("ThreadPool-");
         executor.initialize();

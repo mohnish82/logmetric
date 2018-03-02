@@ -1,16 +1,12 @@
-package com.mohnish.logmetric;
+package com.mohnish.logmetric.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,40 +19,25 @@ import com.mohnish.logmetric.domain.LogEvent;
 import com.mohnish.logmetric.repository.AsyncLogEventRepository;
 
 @Component
-public class LogParser {
-	static final Logger logger = LoggerFactory.getLogger(LogParser.class);
-	
+public class LogParseAndLoadService {
+	static final Logger logger = LoggerFactory.getLogger(LogParseAndLoadService.class);
+
 	@Autowired
 	AsyncLogEventRepository repository;
 	
-	Path logFilePath;
 	DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-	
 	int batchSize;
 	
 	@Autowired
-	public LogParser(Environment env) {
+	public LogParseAndLoadService(Environment env) {
 		String jdbcBatchSize = env.getProperty("spring.jpa.properties.hibernate.jdbc.batch_size");
 		batchSize = jdbcBatchSize != null ? Integer.parseInt(jdbcBatchSize) : 100;
-		
-		String location = env.getProperty("accessLog");
-		Path path = Paths.get(location).normalize();
-		
-		if(Files.exists(path))
-			logFilePath =  path;
 	}
 
-	@PostConstruct
-	public void parseLogFile() throws IOException {
-		
-		if(logFilePath == null)
-			return;
-		
-		logger.info("Log file found, loading into database.");
-		
+	public void process(Path logFilePath) throws IOException {
 		String digest = null;
 		List<LogEvent> logs = new ArrayList<>(batchSize);
-		
+
 		try(Scanner file = new Scanner(logFilePath)) {
 			while(file.hasNext()) {
 				String[] tokens = file.nextLine().split("\\|");
@@ -70,14 +51,11 @@ public class LogParser {
 					logs.clear();
 					saveLogs(copy);
 				}
-				
 			}
 			
 			if(!logs.isEmpty())
 				saveLogs(logs);
-			
 		}
-		
 	}
 
 	protected void saveLogs(List<LogEvent> logs) {
