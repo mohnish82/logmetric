@@ -9,4 +9,5 @@ public class LogmetricApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LogmetricApplication.class, args);
 	}
+
 }
